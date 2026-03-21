@@ -5,37 +5,54 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Domain\Shared\Enums\TipoUsuario;
 
 class UsuarioSeeder extends Seeder
 {
     public function run(): void
     {
-        // Usuário Admin
-        DB::table('usuario')->insert([
-            'nome' => 'Adriano Admin',
+        $faker = \Faker\Factory::create('pt_BR');
+
+        // 1. Admin Principal
+        $this->upsertUsuario([
+            'nome' => 'Administrador do Sistema',
             'cpf' => '111.111.111-11',
-            'email' => 'admin@systock.com',
-            'senha' => Hash::make('senha123'),
-            'tipo_usuario' => 1,
-            'usuario_inclusao' => 'Sistema',
-            'usuario_alteracao' => 'Sistema',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'email' => 'admin@systock.com.mx',
+            'senha' => Hash::make('123456'),
+            'tipo_usuario' => TipoUsuario::ADMIN->value,
         ]);
 
-        // Usuários Comuns
-        for ($i = 1; $i <= 3; $i++) {
-            DB::table('usuario')->insert([
-                'nome' => "Operador Logístico $i",
-                'cpf' => "222.222.222-0$i",
-                'email' => "operador$i@systock.com",
-                'senha' => Hash::make('senha123'),
-                'tipo_usuario' => 2,
-                'usuario_inclusao' => '111.111.111-11',
-                'usuario_alteracao' => '111.111.111-11',
-                'created_at' => now(),
-                'updated_at' => now(),
+        // 2. Cliente Principal
+        $this->upsertUsuario([
+            'nome' => 'Adriano Eusebio',
+            'cpf' => '222.222.222-22',
+            'email' => 'cliente@systock.com.mx',
+            'senha' => Hash::make('123456'),
+            'tipo_usuario' => TipoUsuario::CLIENTE->value,
+        ]);
+
+        // 3. Usuários aleatórios
+        for ($i = 0; $i < 5; $i++) {
+            $this->upsertUsuario([
+                'nome' => $faker->name,
+                'cpf' => $faker->cpf,
+                'email' => $faker->unique()->safeEmail,
+                'senha' => Hash::make('password'),
+                'tipo_usuario' => $faker->randomElement([TipoUsuario::ADMIN->value, TipoUsuario::CLIENTE->value]),
             ]);
         }
+    }
+
+    private function upsertUsuario(array $data): void
+    {
+        DB::table('usuario')->updateOrInsert(
+            ['email' => $data['email']],
+            array_merge($data, [
+                'usuario_inclusao' => 'System',
+                'usuario_alteracao' => 'System',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ])
+        );
     }
 }

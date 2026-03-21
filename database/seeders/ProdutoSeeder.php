@@ -9,27 +9,29 @@ class ProdutoSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('produto')->insert([
-            [
-                'nome' => 'Motor de Popa 40HP',
-                'preco' => 15500.00,
-                'descricao' => 'Equipamento essencial para transporte fluvial.',
-                'usuario_id' => 1,
-                'usuario_inclusao' => '111.111.111-11',
-                'usuario_alteracao' => '111.111.111-11',
+        $faker = \Faker\Factory::create('pt_BR');
+
+        $usuarios = DB::table('usuario')->pluck('id', 'cpf')->toArray();
+
+        for ($i = 0; $i < 30; $i++) {
+            $cpfUsuario = array_rand($usuarios);
+            $idUsuario = $usuarios[$cpfUsuario];
+
+            DB::table('produto')->insert([
+                'nome' => $faker->randomElement([
+                    'Monitor AOC 24"', 'Teclado Mecânico RGB', 'Mouse Gamer Pro',
+                    'Notebook Gamer i7', 'Impressora Laser Jet', 'Cadeira Office',
+                    'Roteador WiFi 6', 'HD Externo 1TB', 'Webcam Full HD',
+                    'Fone de Ouvido Noise Cancelling', 'Kit Cabos HDMI', 'Base Cooler'
+                ]) . " " . $faker->word,
+                'preco' => $faker->randomFloat(2, 50, 6500),
+                'descricao' => $faker->sentence(10),
+                'usuario_id' => $idUsuario,
+                'usuario_inclusao' => $cpfUsuario,
+                'usuario_alteracao' => $cpfUsuario,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
-                'nome' => 'Colete Salva-Vidas Pro',
-                'preco' => 250.00,
-                'descricao' => 'Segurança obrigatória para logística fluvial.',
-                'usuario_id' => 2,
-                'usuario_inclusao' => '222.222.222-01',
-                'usuario_alteracao' => '222.222.222-01',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        ]);
+            ]);
+        }
     }
 }

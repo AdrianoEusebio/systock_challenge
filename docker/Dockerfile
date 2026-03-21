@@ -20,5 +20,9 @@ WORKDIR /var/www
 
 RUN chown -R www-data:www-data /var/www
 
+COPY docker/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 9000
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]
