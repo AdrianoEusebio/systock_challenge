@@ -32,13 +32,13 @@ class UsuarioSeeder extends Seeder
         ]);
 
         // 3. Usuários aleatórios
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 3; $i++) {
             $this->upsertUsuario([
                 'nome' => $faker->name,
                 'cpf' => $faker->cpf,
                 'email' => $faker->unique()->safeEmail,
                 'senha' => Hash::make('password'),
-                'tipo_usuario' => $faker->randomElement([TipoUsuario::ADMIN->value, TipoUsuario::CLIENTE->value]),
+                'tipo_usuario' => TipoUsuario::CLIENTE->value,
             ]);
         }
     }

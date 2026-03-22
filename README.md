@@ -1,7 +1,5 @@
 # 📦 Desafio Full Stack: SYSTOCK (Vue.js + Laravel)
 
-Bem-vindo ao repositório do aplicativo web SYSTOCK, criado e projetado com foco total em boas práticas, modernidade e arquitetura de software para o desafio Full Stack.
-
 ## 🚀 Tecnologias e Diferenciais Implementados
 
 **Front-end**:
@@ -17,7 +15,7 @@ Bem-vindo ao repositório do aplicativo web SYSTOCK, criado e projetado com foco
 - **JWT (JSON Web Token)**: Implementação de autenticação nativa e segura para o projeto.
 - **Filtros e Paginação**: Paginação construída tanto no Back-end quanto consumida no Front-end visualmente com metadados.
 
-**Avaliação de Escrita SQL (Diferencial Concluído! 🏆)**
+**Avaliação de Escrita SQL**
 Para comprovar as habilidades em SQL puro e DB Engine Raw Queries, atendi **AMBAS** as alternativas propostas no desafio:
 1. Pela rota (Mini-Relatório): Criadas rotas e telas exclusivas `/reports` consumindo endpoints criados via `DB::select` (ver `SqlReportController`).
 2. Pelo arquivo físico: Localizado em `backend/database/consultas.sql` contendo exatamente as _Query A, B e C_ requisitadas.
@@ -29,30 +27,17 @@ Para comprovar as habilidades em SQL puro e DB Engine Raw Queries, atendi **AMBA
 A arquitetura do projeto possui os ambienes conteinerizados isolando totalmente a dependência da sua máquina (Sail / Docker). 
 
 ### Passo 1: Configurar a API (Backend / Docker)
-Sugerimos rodar o Backend pelo pacote **Laravel Sail**, garantindo que o PostgreSQL nativo também seja levantado automaticamente sem precisar criar tabelas manuais, veja:
+Sugerimos rodar o Backend diretamente com **Docker Compose**, garantindo facilidade no uso e que o PostgreSQL seja gerado sem precisar criar tabelas manuais. A instalação de dependências, chave criptográfica e migrações são lidadas automaticamente via script em `backend/docker`.
 
 1. Acesse o terminal da pasta backend:
    ```bash
    cd backend
    ```
-2. Instale as dependências com o composer da sua máquina (ou use os containers de imagem se preferir):
+2. Suba os containers do Docker Compose em background (ele carregará a API PHP 8 integrado com Nginx + PostgreSql alinhados):
    ```bash
-   composer install
+   docker compose up -d
    ```
-3. Copie o arquivo de ambiente:
-   ```bash
-   cp .env.example .env
-   ```
-4. Suba os containers do Docker pelo Laravel Sail (ele carregará a Stack do App Web PHP 8 + Servidor + PostgreSql local + Redis e mais):
-   ```bash
-   ./vendor/bin/sail up -d
-   ```
-5. Com os containers rodando, crie a key, as migrações e rode nossas Populações Base (_Seeders_):
-   ```bash
-   ./vendor/bin/sail artisan key:generate
-   ./vendor/bin/sail artisan migrate:fresh --seed
-   ```
-   > 💡 O comando `--seed` gerará usuários pré-cadastrados, incluindo 1 perfil Administrador contido no `DatabaseSeeder`, populando automaticamente sua base!
+   > 💡 O processo de inicialização do container rodará os comandos de infraestrutura (*`composer install`, `key:generate`, `migrate:fresh --seed`*), gerando os usuários e produtos base automaticamente.
 
 ### Passo 2: Configurar o App (Frontend)
 Abra uma nova aba em seu terminal.
@@ -73,6 +58,15 @@ Abra uma nova aba em seu terminal.
 Acesse o endereço local apresentado no final do terminal (geralmente `http://localhost:5173`) para visualizar a tela de Login do SYSTOCK!
 
 ### Como Entrar no Sistema
-Use credenciais vindas do "Database Seeder" recém populado, ou crie uma conta livremente pelo `Registrar`, percebendo que só um "Administrador" terá totais privilégios no sistema para excluir.
+Use as credenciais abaixo vindas do nosso Seeder para testar o sistema:
+
+- **👑 Administrador:** `admin@systock.com.mx` / Senha: `123456`
+- **👤 Cliente Conta:** `cliente@systock.com.mx` / Senha: `123456`
+
+Ou crie uma conta livremente pelo botão `Registrar`. Lembre-se que apenas os Administradores têm privilégios completos.
+
+### 📚 Documentação da API (Swagger)
+Para visualizar a documentação de rotas e estrutura com o Swagger em uma UI iterativa, acesse o link logo após o Backend estar rodando no Docker:
+🔗 **Swagger UI**: [http://localhost:8000/api/documentation](http://localhost:8000/api/documentation)
 
 Espero que o sistema vá além das expectativas e alcance positivamente a sua análise de código. Sinta-se a vontade para navegar. Boa avaliação! 🍀
