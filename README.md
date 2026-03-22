@@ -1,85 +1,78 @@
-# 🚀 SyStock - Desafio Técnico Backend
+# 📦 Desafio Full Stack: SYSTOCK (Vue.js + Laravel)
 
-Bem-vindo ao **SyStock**, um sistema de gerenciamento de estoque desenvolvido em **Laravel 13** com **Arquitetura Limpa (Clean Architecture)** e **JWT Authentication**.
+Bem-vindo ao repositório do aplicativo web SYSTOCK, criado e projetado com foco total em boas práticas, modernidade e arquitetura de software para o desafio Full Stack.
 
-Este projeto foi construído focando em escalabilidade, segurança e alta performance em consultas SQL.
+## 🚀 Tecnologias e Diferenciais Implementados
 
-## 🛠 Diferenciais Implementados
--   **Arquitetura:** Repository Pattern + Domain Entities (Separação total de responsabilidade).
--   **Segurança:** Autenticação via JWT (Tymon JWT-Auth) e travas de privilégio (Admin vs Usuário).
--   **Docker:** Ambiente completo com Docker Compose (App + Database).
--   **Relatórios Analíticos:** Endpoints específicos utilizando **SQL Puro (Raw Queries)** e recursos avançados do PostgreSQL (`DISTINCT ON`, `JSON_AGG`, `COALESCE`).
--   **Boas Práticas:** Clean Code, PSR-12, Padronização de JSON Response e Tratamento de Exceções.
--   **Documentação:** API documentada via **Swagger** (L5-Swagger).
+**Front-end**:
+- **Vue.js 3**: Framework progressivo adotado usando sua Composition API nativa (`<script setup>`).
+- **Vuetify 3**: Integração do ecossistema e componentes. (Bônus: Design moderno e App-like, além do material padrão).
+- **Vite**: Usado em substituição ao clássico Webpack (`vue.config.js`) resultando em builds ultrarrápidas, seguindo o padrão ouro atual do ecossistema Vue (`vite.config.js`).
+- **Axios**: Gerenciamento limpo com Interceptors para capturar erro 401 e Tokens.
+- **Pinia**: Gerenciamento de estado (Store) para a Autenticação.
 
----
+**Back-end**:
+- **Laravel 11 / PHP 8+**: API RESTful robusta, adotando padrão **Repository Pattern** em vez de colocar lógica direto nos Controllers.
+- **PostgreSQL**: Sólido gerenciamento de dados.
+- **JWT (JSON Web Token)**: Implementação de autenticação nativa e segura para o projeto.
+- **Filtros e Paginação**: Paginação construída tanto no Back-end quanto consumida no Front-end visualmente com metadados.
 
-## 🚀 Como Executar o Projeto
-
-### Pré-requisitos
--   Docker e Docker Compose instalados.
-
-### Passos para Instalação
-
-1.  **Clonar o Repositório:**
-    ```bash
-    git clone https://github.com/AdrianoEusebio/systock_challenge.git
-    cd systock_challenge/backend
-    ```
-
-2.  **Preparar o Ambiente:**
-    ```bash
-    cp .env.example .env
-    ```
-
-3.  **Subir os Containers:**
-    ```bash
-    docker-compose up -d --build
-    ```
-
-4.  **Instalar Dependências e Configurar Chaves:**
-    ```bash
-    docker-compose exec app composer install
-    docker-compose exec app php artisan key:generate
-    docker-compose exec app php artisan jwt:secret --force
-    ```
-
-5.  **Executar Migrations e Seeders:**
-    ```bash
-    docker-compose exec app php artisan migrate --seed
-    ```
+**Avaliação de Escrita SQL (Diferencial Concluído! 🏆)**
+Para comprovar as habilidades em SQL puro e DB Engine Raw Queries, atendi **AMBAS** as alternativas propostas no desafio:
+1. Pela rota (Mini-Relatório): Criadas rotas e telas exclusivas `/reports` consumindo endpoints criados via `DB::select` (ver `SqlReportController`).
+2. Pelo arquivo físico: Localizado em `backend/database/consultas.sql` contendo exatamente as _Query A, B e C_ requisitadas.
 
 ---
 
-## 📖 Documentação da API (Swagger)
-A API possui documentação interativa para teste de todos os endpoints:
+## 🏗️ Como Rodar a Aplicação
 
-**URL do Swagger:** `http://localhost:8000/api/documentation`
+A arquitetura do projeto possui os ambienes conteinerizados isolando totalmente a dependência da sua máquina (Sail / Docker). 
 
----
+### Passo 1: Configurar a API (Backend / Docker)
+Sugerimos rodar o Backend pelo pacote **Laravel Sail**, garantindo que o PostgreSQL nativo também seja levantado automaticamente sem precisar criar tabelas manuais, veja:
 
-## 📊 Relatórios SQL (Diferenciais Extras)
-Além dos CRUDs de Usuário e Produto, foram implementados os seguintes relatórios em SQL Puro:
+1. Acesse o terminal da pasta backend:
+   ```bash
+   cd backend
+   ```
+2. Instale as dependências com o composer da sua máquina (ou use os containers de imagem se preferir):
+   ```bash
+   composer install
+   ```
+3. Copie o arquivo de ambiente:
+   ```bash
+   cp .env.example .env
+   ```
+4. Suba os containers do Docker pelo Laravel Sail (ele carregará a Stack do App Web PHP 8 + Servidor + PostgreSql local + Redis e mais):
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+5. Com os containers rodando, crie a key, as migrações e rode nossas Populações Base (_Seeders_):
+   ```bash
+   ./vendor/bin/sail artisan key:generate
+   ./vendor/bin/sail artisan migrate:fresh --seed
+   ```
+   > 💡 O comando `--seed` gerará usuários pré-cadastrados, incluindo 1 perfil Administrador contido no `DatabaseSeeder`, populando automaticamente sua base!
 
--   `GET /api/relatorio`: Geral de usuários e médias de preço.
--   `GET /api/relatorio/maiores-estoques`: Ranking de usuários por contagem de itens.
--   `GET /api/relatorio/produtos-mais-caros`: Produto premium de cada usuário.
--   `GET /api/relatorio/faixas-precos`: Análise de distribuição por preço.
+### Passo 2: Configurar o App (Frontend)
+Abra uma nova aba em seu terminal.
 
-As queries brutas podem ser encontradas em: `database/consultas.sql`.
+1. Acesse o Frontend:
+   ```bash
+   cd frontend
+   ```
+2. Instale os módulos NPM:
+   ```bash
+   npm install
+   ```
+3. Rode o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
 
----
+Acesse o endereço local apresentado no final do terminal (geralmente `http://localhost:5173`) para visualizar a tela de Login do SYSTOCK!
 
-## 🧪 Estrutura de Pastas
-```
-├── app/
-│   ├── Domain/         # Lógica de negócio e Entidades (Puro)
-│   ├── Infrastructure/  # Repositórios (Eloquent/SQL)
-│   ├── Http/           # Controllers (Gerenciamento de Requisição)
-│   ├── Providers/      # Injeção de Dependências
-├── database/           # Migrations e Seeders
-├── routes/             # Rotas API (Auth, Usuários, Produtos e Relatórios)
-```
+### Como Entrar no Sistema
+Use credenciais vindas do "Database Seeder" recém populado, ou crie uma conta livremente pelo `Registrar`, percebendo que só um "Administrador" terá totais privilégios no sistema para excluir.
 
----
-**Desenvolvido por:** Adriano Eusebio
+Espero que o sistema vá além das expectativas e alcance positivamente a sua análise de código. Sinta-se a vontade para navegar. Boa avaliação! 🍀
