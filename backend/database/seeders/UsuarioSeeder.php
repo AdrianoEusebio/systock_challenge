@@ -16,7 +16,7 @@ class UsuarioSeeder extends Seeder
         // 1. Admin Principal
         $this->upsertUsuario([
             'nome' => 'Administrador do Sistema',
-            'cpf' => '111.111.111-11',
+            'cpf' => '11111111111',
             'email' => 'admin@systock.com.mx',
             'senha' => Hash::make('123456'),
             'tipo_usuario' => TipoUsuario::ADMIN->value,
@@ -25,7 +25,7 @@ class UsuarioSeeder extends Seeder
         // 2. Cliente Principal
         $this->upsertUsuario([
             'nome' => 'Adriano Eusebio',
-            'cpf' => '222.222.222-22',
+            'cpf' => '22222222222',
             'email' => 'cliente@systock.com.mx',
             'senha' => Hash::make('123456'),
             'tipo_usuario' => TipoUsuario::CLIENTE->value,
@@ -35,7 +35,7 @@ class UsuarioSeeder extends Seeder
         for ($i = 0; $i < 3; $i++) {
             $this->upsertUsuario([
                 'nome' => $faker->name,
-                'cpf' => $faker->cpf,
+                'cpf' => $faker->cpf(false),
                 'email' => $faker->unique()->safeEmail,
                 'senha' => Hash::make('password'),
                 'tipo_usuario' => TipoUsuario::CLIENTE->value,
