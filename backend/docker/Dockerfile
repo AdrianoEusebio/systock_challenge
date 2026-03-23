@@ -6,13 +6,10 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    curl
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo_pgsql
-
-RUN docker-php-ext-install pdo_pgsql pgsql zip
+    curl \
+    && docker-php-ext-install pdo_pgsql pgsql zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

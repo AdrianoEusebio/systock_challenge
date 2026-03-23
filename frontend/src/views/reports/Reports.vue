@@ -49,12 +49,10 @@
       </div>
     </aside>
 
-    <!-- Main content -->
-    <div class="main-area">
+    <div class="main-area" @click="drawer = false">
 
-      <!-- Topbar -->
       <header class="topbar">
-        <button class="toggle-btn" @click="drawer = !drawer">
+        <button class="toggle-btn" @click.stop="drawer = !drawer">
           <v-icon size="22">{{ drawer ? 'mdi-menu-open' : 'mdi-menu' }}</v-icon>
         </button>
         <div class="topbar-title">
@@ -187,7 +185,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -196,7 +194,8 @@ import '../dashboard/dashboard.css'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const drawer = ref(true)
+const drawer = ref(localStorage.getItem('sys_drawer') !== 'false')
+watch(drawer, (val) => localStorage.setItem('sys_drawer', String(val)))
 const loading = ref(false)
 
 const maioresEstoques = ref([])

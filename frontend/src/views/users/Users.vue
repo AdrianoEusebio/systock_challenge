@@ -50,11 +50,11 @@
     </aside>
 
     <!-- Main content -->
-    <div class="main-area">
+    <div class="main-area" @click="drawer = false">
 
       <!-- Topbar -->
       <header class="topbar">
-        <button class="toggle-btn" @click="drawer = !drawer">
+        <button class="toggle-btn" @click.stop="drawer = !drawer">
           <v-icon size="22">{{ drawer ? 'mdi-menu-open' : 'mdi-menu' }}</v-icon>
         </button>
         <div class="topbar-title">
@@ -102,9 +102,9 @@
                 </div>
                 
                 <div class="field-group">
-                  <label class="field-label">CPF (Apenas números)</label>
+                  <label class="field-label">CPF</label>
                   <div class="field-wrapper">
-                    <input v-model="form.cpf" placeholder="00011122233" class="form-input" required maxlength="11" />
+                    <input v-model="form.cpf" @input="formatCpfInput" placeholder="000.111.222-33" class="form-input" required maxlength="14" />
                   </div>
                 </div>
 
@@ -191,7 +191,7 @@
                     </td>
                     <td v-if="isAdmin" class="product-desc">{{ userItem.email }}</td>
                     <td v-if="isAdmin">
-                      <span class="price-badge">{{ userItem.cpf }}</span>
+                      <span class="price-badge">{{ formatCPF(userItem.cpf) }}</span>
                     </td>
                     <td v-if="isAdmin">{{ userItem.tipo_usuario }}</td>
                     <td v-if="isAdmin">
@@ -231,7 +231,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -240,7 +240,8 @@ import '../dashboard/dashboard.css'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const drawer = ref(true)
+const drawer = ref(localStorage.getItem('sys_drawer') !== 'false')
+watch(drawer, (val) => localStorage.setItem('sys_drawer', String(val)))
 const users = ref([])
 const loading = ref(false)
 const submitting = ref(false)
@@ -253,6 +254,29 @@ const lastPage = ref(1)
 const isAdmin = computed(() => authStore.user?.tipo_usuario === 'Administrador')
 
 const form = reactive({ nome: '', email: '', cpf: '', senha: '', tipo_usuario: '2' })
+
+const formatCPF = (cpf) => {
+  if (!cpf) return ''
+  const val = cpf.replace(/\D/g, '')
+  if (val.length === 11) {
+    return val.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4')
+  }
+  return cpf
+}
+
+const formatCpfInput = () => {
+  let val = form.cpf.replace(/\D/g, '')
+  if (val.length > 11) val = val.slice(0, 11)
+  
+  if (val.length > 9) {
+    val = val.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4')
+  } else if (val.length > 6) {
+    val = val.replace(/^(\d{3})(\d{3})(\d{1,3}).*/, '$1.$2.$3')
+  } else if (val.length > 3) {
+    val = val.replace(/^(\d{3})(\d{1,3}).*/, '$1.$2')
+  }
+  form.cpf = val
+}
 
 const toast = reactive({ show: false, text: '', type: 'success' })
 
@@ -271,7 +295,8 @@ const filteredUsers = computed(() => {
   return users.value.filter(u =>
     u.nome?.toLowerCase().includes(q) ||
     u.email?.toLowerCase().includes(q) ||
-    u.cpf?.includes(q)
+    u.cpf?.includes(q) ||
+    formatCPF(u.cpf).includes(q)
   )
 })
 
@@ -335,7 +360,7 @@ const editUser = (userItem) => {
   editingId.value = userItem.id
   form.nome = userItem.nome
   form.email = userItem.email
-  form.cpf = userItem.cpf
+  form.cpf = formatCPF(userItem.cpf)
   form.tipo_usuario = userItem.tipo_usuario === 'Administrador' ? '1' : '2'
   form.senha = ''
 }

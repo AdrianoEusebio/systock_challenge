@@ -49,12 +49,10 @@
       </div>
     </aside>
 
-    <!-- Main content -->
-    <div class="main-area">
+    <div class="main-area" @click="drawer = false">
 
-      <!-- Topbar -->
       <header class="topbar">
-        <button class="toggle-btn" @click="drawer = !drawer">
+        <button class="toggle-btn" @click.stop="drawer = !drawer">
           <v-icon size="22">{{ drawer ? 'mdi-menu-open' : 'mdi-menu' }}</v-icon>
         </button>
         <div class="topbar-title">
@@ -138,10 +136,10 @@
                   <label class="field-label">Preço (R$)</label>
                   <div class="field-wrapper">
                     <input
-                      v-model.number="productForm.preco"
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
+                      :value="formattedPreco"
+                      @input="updatePreco"
+                      type="text"
+                      placeholder="0,00"
                       class="form-input"
                       required
                     />
@@ -199,7 +197,7 @@
             </div>
 
             <!-- Table -->
-            <div v-else class="table-wrapper">
+            <div v-else class="table-wrapper" style="max-height: 655px; overflow-y: auto;">
               <table class="product-table">
                 <thead>
                   <tr>
@@ -270,7 +268,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -279,7 +277,8 @@ import './dashboard.css'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const drawer = ref(true)
+const drawer = ref(localStorage.getItem('sys_drawer') !== 'false')
+watch(drawer, (val) => localStorage.setItem('sys_drawer', String(val)))
 const products = ref([])
 const loading = ref(false)
 const submitting = ref(false)
@@ -296,6 +295,21 @@ const changePage = (page) => {
 }
 
 const productForm = reactive({ nome: '', preco: null, descricao: '' })
+
+const formattedPreco = computed(() => {
+  if (productForm.preco === null || productForm.preco === '') return ''
+  return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(productForm.preco)
+})
+
+const updatePreco = (event) => {
+  let val = event.target.value.replace(/\D/g, '')
+  if (!val) {
+    productForm.preco = null
+    event.target.value = ''
+    return
+  }
+  productForm.preco = Number(val) / 100
+}
 
 const toast = reactive({ show: false, text: '', type: 'success' })
 
