@@ -40,7 +40,7 @@ trait RepositoryTrait
      * @param int $page
      * @return array
      */
-    protected function performFindAll(array $filters = [], array $orderBy = [], int $limit = 15, int $page = 1): array
+    protected function performFindAll(array $filters = [], array $orderBy = [], int $limit = 100, int $page = 1): array
     {
         $query = $this->modelClass::query();
 

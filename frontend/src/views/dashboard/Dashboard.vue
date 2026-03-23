@@ -76,7 +76,7 @@
           <div class="stat-card stat-card--blue">
             <div class="stat-icon"><v-icon size="24" color="white">mdi-package-variant</v-icon></div>
             <div class="stat-info">
-              <div class="stat-value">{{ products.length }}</div>
+              <div class="stat-value">{{ allProducts.length }}</div>
               <div class="stat-label">Total de Produtos</div>
             </div>
             <div class="stat-bg-icon">
@@ -236,7 +236,7 @@
                         <button class="action-btn action-btn--edit" @click="editProduct(product)" title="Editar">
                           <v-icon size="15">mdi-pencil-outline</v-icon>
                         </button>
-                        <button class="action-btn action-btn--delete" @click="deleteProduct(product.id)" title="Remover">
+                        <button class="action-btn action-btn--delete" @click="confirmDeleteProduct(product.id)" title="Remover">
                           <v-icon size="15">mdi-trash-can-outline</v-icon>
                         </button>
                       </div>
@@ -256,6 +256,30 @@
         </div>
       </main>
     </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <transition name="toast">
+      <div v-if="deleteDialog.show" class="modal-overlay" @click.self="deleteDialog.show = false">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">
+              <v-icon size="20" color="#ef4444">mdi-alert-circle</v-icon>
+              Confirmar Exclusão
+            </h3>
+            <button class="modal-close-btn" @click="deleteDialog.show = false">
+              <v-icon size="20">mdi-close</v-icon>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Tem certeza que deseja remover este produto? Esta ação não pode ser desfeita.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-ghost" @click="deleteDialog.show = false">Cancelar</button>
+            <button class="btn-primary" style="background: #ef4444; box-shadow: 0 4px 14px rgba(239,68,68,0.3);" @click="executeDeleteProduct" :disabled="loadingActions">Remover</button>
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <!-- Toast notification -->
     <transition name="toast">
@@ -280,6 +304,7 @@ const authStore = useAuthStore()
 const drawer = ref(localStorage.getItem('sys_drawer') !== 'false')
 watch(drawer, (val) => localStorage.setItem('sys_drawer', String(val)))
 const products = ref([])
+const allProducts = ref([])
 const loading = ref(false)
 const submitting = ref(false)
 const editingId = ref(null)
@@ -312,6 +337,8 @@ const updatePreco = (event) => {
 }
 
 const toast = reactive({ show: false, text: '', type: 'success' })
+const deleteDialog = reactive({ show: false, id: null })
+const loadingActions = ref(false)
 
 const userInitials = computed(() => {
   const nome = authStore.user?.nome || ''
@@ -331,22 +358,31 @@ const filteredProducts = computed(() => {
   )
 })
 
-const totalValue = computed(() => products.value.reduce((sum, p) => sum + Number(p.preco || 0), 0))
-const avgPrice = computed(() => products.value.length ? totalValue.value / products.value.length : 0)
+const totalValue = computed(() => allProducts.value.reduce((sum, p) => sum + Number(p.preco || 0), 0))
+const avgPrice = computed(() => allProducts.value.length ? totalValue.value / allProducts.value.length : 0)
 
 const fetchProducts = async () => {
   loading.value = true
   try {
     const userId = authStore.user?.id || 0
-    const response = await api.get(`produtos/usuario/${userId}`, {
-      params: { page: currentPage.value, limit: 15 }
-    })
-    const payload = response.data.data || response.data
+    
+    const [pageRes, allRes] = await Promise.all([
+      api.get(`produtos/usuario/${userId}`, {
+        params: { page: currentPage.value, limit: 15 }
+      }),
+      api.get(`produtos/usuario/${userId}`, {
+        params: { limit: 999999 }
+      })
+    ])
+    
+    const payload = pageRes.data.data || pageRes.data
     products.value = Array.isArray(payload.data) ? payload.data : payload
     
-    // Pagination data
     currentPage.value = payload.current_page || 1
     lastPage.value = payload.last_page || 1
+
+    const allPayload = allRes.data.data || allRes.data
+    allProducts.value = Array.isArray(allPayload.data) ? allPayload.data : allPayload
   } catch {
     showToast('Erro ao carregar produtos.', 'error')
   } finally {
@@ -381,14 +417,25 @@ const editProduct = (product) => {
   productForm.descricao = product.descricao
 }
 
-const deleteProduct = async (id) => {
-  if (!confirm('Tem certeza que deseja remover este produto?')) return
+const confirmDeleteProduct = (id) => {
+  deleteDialog.id = id
+  deleteDialog.show = true
+}
+
+const executeDeleteProduct = async () => {
+  const id = deleteDialog.id
+  if (!id) return
+  
+  loadingActions.value = true
   try {
     await api.delete(`produtos/${id}`)
     showToast('Produto removido.')
+    deleteDialog.show = false
     fetchProducts()
   } catch {
     showToast('Erro ao remover produto.', 'error')
+  } finally {
+    loadingActions.value = false
   }
 }
 

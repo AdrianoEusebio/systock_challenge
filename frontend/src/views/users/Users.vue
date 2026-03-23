@@ -199,7 +199,7 @@
                         <button class="action-btn action-btn--edit" @click="editUser(userItem)" title="Editar">
                           <v-icon size="15">mdi-pencil-outline</v-icon>
                         </button>
-                        <button class="action-btn action-btn--delete" @click="deleteUser(userItem.id)" title="Remover">
+                        <button class="action-btn action-btn--delete" @click="confirmDeleteUser(userItem.id)" title="Remover">
                           <v-icon size="15">mdi-trash-can-outline</v-icon>
                         </button>
                       </div>
@@ -219,6 +219,30 @@
         </div>
       </main>
     </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <transition name="toast">
+      <div v-if="deleteDialog.show" class="modal-overlay" @click.self="deleteDialog.show = false">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">
+              <v-icon size="20" color="#ef4444">mdi-alert-circle</v-icon>
+              Confirmar Exclusão
+            </h3>
+            <button class="modal-close-btn" @click="deleteDialog.show = false">
+              <v-icon size="20">mdi-close</v-icon>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Tem certeza que deseja remover este usuário? Esta ação não pode ser desfeita.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-ghost" @click="deleteDialog.show = false">Cancelar</button>
+            <button class="btn-primary" style="background: #ef4444; box-shadow: 0 4px 14px rgba(239,68,68,0.3);" @click="executeDeleteUser" :disabled="loadingActions">Remover</button>
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <!-- Toast notification -->
     <transition name="toast">
@@ -279,6 +303,8 @@ const formatCpfInput = () => {
 }
 
 const toast = reactive({ show: false, text: '', type: 'success' })
+const deleteDialog = reactive({ show: false, id: null })
+const loadingActions = ref(false)
 
 const userInitials = computed(() => {
   const nome = authStore.user?.nome || ''
@@ -365,18 +391,29 @@ const editUser = (userItem) => {
   form.senha = ''
 }
 
-const deleteUser = async (id) => {
-  if (!confirm('Tem certeza que deseja remover este usuário?')) return
+const confirmDeleteUser = (id) => {
   if (id === authStore.user?.id) {
     showToast('Erro: Você não pode remover sua própria conta logada.', 'error')
     return;
   }
+  deleteDialog.id = id
+  deleteDialog.show = true
+}
+
+const executeDeleteUser = async () => {
+  const id = deleteDialog.id
+  if (!id) return
+  
+  loadingActions.value = true
   try {
     await api.delete(`usuarios/${id}`)
     showToast('Usuário removido.')
+    deleteDialog.show = false
     fetchUsers()
   } catch {
     showToast('Erro ao remover usuário.', 'error')
+  } finally {
+    loadingActions.value = false
   }
 }
 
