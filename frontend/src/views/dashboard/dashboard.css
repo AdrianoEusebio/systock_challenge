@@ -293,7 +293,7 @@
   padding: 28px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /* ========================================
@@ -364,8 +364,6 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  flex: 1;
-  min-height: 0;
 }
 
 /* Shared card styles */
@@ -382,10 +380,8 @@
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   box-shadow: 0 4px 32px rgba(66, 100, 200, 0.05);
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   overflow: hidden;
 }
 
@@ -563,9 +559,7 @@
    TABLE
 ======================================== */
 .table-wrapper {
-  overflow-y: auto;
   overflow-x: auto;
-  flex: 1;
 }
 .product-table {
   width: 100%;

@@ -35,7 +35,7 @@ Sugerimos rodar o Backend diretamente com **Docker Compose**, garantindo facilid
    ```
 2. Suba os containers do Docker Compose em background (ele carregará a API PHP 8 integrado com Nginx + PostgreSql alinhados):
    ```bash
-   docker compose up -d
+   docker compose up --build -d
    ```
    > 💡 O processo de inicialização do container rodará os comandos de infraestrutura (*`composer install`, `key:generate`, `migrate:fresh --seed`*), gerando os usuários e produtos base automaticamente.
 

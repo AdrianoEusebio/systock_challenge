@@ -68,7 +68,7 @@
 
       <!-- Content -->
       <main class="content">
-        <div class="reports-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; flex: 1; min-height: 0;" v-if="loading">
+        <div class="reports-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;" v-if="loading">
           <div class="table-card" style="padding: 20px;">
             <div class="skeleton-box" style="height: 40px; width: 60%; margin-bottom: 24px;"></div>
             <div class="skeleton-box" style="height: 52px; width: 100%;"></div>
@@ -77,7 +77,7 @@
             <div class="skeleton-box" style="height: 52px; width: 100%; opacity: 0.5;"></div>
             <div class="skeleton-box" style="height: 52px; width: 100%; opacity: 0.3;"></div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+          <div style="display: flex; flex-direction: column; gap: 20px;">
              <div class="table-card" style="padding: 20px;">
                <div class="skeleton-box" style="height: 30px; width: 70%; margin-bottom: 20px;"></div>
                <div class="skeleton-box" style="height: 45px; width: 100%;"></div>
@@ -91,7 +91,7 @@
           </div>
         </div>
         
-        <div class="reports-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; flex: 1; min-height: 0;" v-else>
+        <div class="reports-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;" v-else>
           
           <!-- PRODUTOS MAIS CAROS (Left, Larger) -->
           <div class="table-card" style="padding: 10px;">
@@ -120,7 +120,7 @@
           </div>
 
           <!-- Section for smaller reports (Right, Stacked) -->
-          <div style="display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+          <div style="display: flex; flex-direction: column; gap: 20px;">
             
             <!-- MAIORES ESTOQUES -->
             <div class="table-card" style="padding: 10px;">
